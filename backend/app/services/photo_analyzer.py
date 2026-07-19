@@ -59,7 +59,20 @@ def analyze_photo(image_url: str) -> Dict:
     start = text.find("{")
     end = text.rfind("}")
     if start == -1 or end == -1 or end < start:
-        raise ValueError(f"No JSON object found in model response: {text!r}")
-    parsed = json.loads(text[start:end + 1])
+        return {
+            "room_type": "other", "complexity": "medium", "surface_condition": "fair",
+            "waterproofing_needed": False, "estimated_sqft": 50.0,
+            "estimated_material_units": 55.0,
+            "raw_ai_response": {"note": "model did not return JSON", "raw_text": text},
+        }
+    try:
+        parsed = json.loads(text[start:end + 1])
+    except json.JSONDecodeError:
+        return {
+            "room_type": "other", "complexity": "medium", "surface_condition": "fair",
+            "waterproofing_needed": False, "estimated_sqft": 50.0,
+            "estimated_material_units": 55.0,
+            "raw_ai_response": {"note": "model returned malformed JSON", "raw_text": text},
+        }
     parsed["raw_ai_response"] = parsed.copy()
     return parsed
