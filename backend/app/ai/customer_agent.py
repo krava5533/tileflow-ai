@@ -52,10 +52,13 @@ def _call_claude(history: List[Dict[str, str]]) -> Dict:
         messages=history,
     )
     text = response.content[0].text.strip()
-    # Model is instructed to return only JSON, but strip code fences defensively
-    text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(text)
-
+    # The model is instructed to return only JSON, but may still wrap it in
+    # code fences or add stray text -- pull out the outermost {...} block.
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        raise ValueError(f"No JSON object found in model response: {text!r}")
+    return json.loads(text[start:end + 1])
 
 def get_agent_reply(history: List[Dict[str, str]], lead) -> Tuple[str, Dict[str, str]]:
     """Returns (assistant_reply_text, collected_fields_dict)."""
