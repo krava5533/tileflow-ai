@@ -56,7 +56,10 @@ def analyze_photo(image_url: str) -> Dict:
         }],
     )
     text = response.content[0].text.strip()
-    text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    parsed = json.loads(text)
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        raise ValueError(f"No JSON object found in model response: {text!r}")
+    parsed = json.loads(text[start:end + 1])
     parsed["raw_ai_response"] = parsed.copy()
     return parsed
