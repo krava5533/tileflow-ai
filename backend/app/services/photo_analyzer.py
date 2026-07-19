@@ -2,12 +2,10 @@
 Photo AI Analyzer — принимает URL фото объекта и возвращает структурированный
 Project Report: тип помещения, сложность, состояние поверхности, необходимость
 waterproofing, примерная площадь и материалы.
-
-VISION_SYSTEM_PROMPT ниже — это то, что реально отправляется в vision-модель
-в проде. Сейчас analyze_photo() возвращает разумные дефолты, чтобы можно было
-тестировать весь flow (upload → analysis → estimate) без живого API-ключа.
 """
 
+import json
+import os
 from typing import Dict
 
 VISION_SYSTEM_PROMPT = """You are a tile installation estimator analyzing a photo
@@ -25,35 +23,40 @@ a JSON object with these fields:
 
 Base "complexity" on: number of corners/edges, fixtures to work around, uneven
 surfaces, and existing tile that needs removal. Be conservative with sqft
-estimates — flag it as approximate."""
+estimates -- flag it as approximate. Return ONLY the JSON object, no other text."""
 
 
 def analyze_photo(image_url: str) -> Dict:
-    """
-    Replace this body with a real call, e.g.:
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        return {
+            "room_type": "other",
+            "complexity": "medium",
+            "surface_condition": "fair",
+            "waterproofing_needed": False,
+            "estimated_sqft": 50.0,
+            "estimated_material_units": 55.0,
+            "raw_ai_response": {"note": "ANTHROPIC_API_KEY not set -- using placeholder values"},
+        }
 
-        import anthropic, json
-        client = anthropic.Anthropic()
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=300,
-            system=VISION_SYSTEM_PROMPT,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image", "source": {"type": "url", "url": image_url}},
-                    {"type": "text", "text": "Analyze this photo."}
-                ]
-            }]
-        )
-        return json.loads(response.content[0].text)
-    """
-    return {
-        "room_type": "bathroom",
-        "complexity": "medium",
-        "surface_condition": "fair",
-        "waterproofing_needed": True,
-        "estimated_sqft": 45.0,
-        "estimated_material_units": 50.0,
-        "raw_ai_response": {"note": "stubbed response — connect vision API"},
-    }
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+    # image_url must be publicly reachable (S3 URL) for the "url" source type.
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=300,
+        system=VISION_SYSTEM_PROMPT,
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "image", "source": {"type": "url", "url": image_url}},
+                {"type": "text", "text": "Analyze this photo."},
+            ],
+        }],
+    )
+    text = response.content[0].text.strip()
+    text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    parsed = json.loads(text)
+    parsed["raw_ai_response"] = parsed.copy()
+    return parsed
