@@ -68,7 +68,10 @@ def get_agent_reply(history: List[Dict[str, str]], lead) -> Tuple[str, Dict[str,
 
     try:
         data = _call_claude(history)
-    except Exception:
+    except Exception as e:
+        import traceback
+        print(f"[customer_agent] Anthropic call failed: {e}")
+        traceback.print_exc()
         return (
             "Sorry, I'm having trouble thinking right now -- could you try that again in a moment?",
             {},
