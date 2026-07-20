@@ -15,6 +15,8 @@ export default function EstimatePage() {
   const [estimate, setEstimate] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [slotTime, setSlotTime] = useState("");
+  const [booked, setBooked] = useState<any>(null);
 
   async function ensureLead(): Promise<string> {
     if (leadId) return leadId;
@@ -82,6 +84,22 @@ export default function EstimatePage() {
       const res = await fetch(`${API_URL}/api/estimates/${leadId}/generate`, { method: "POST" });
       const data = await res.json();
       setEstimate(data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function bookMeasurement() {
+    if (!leadId || !slotTime) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/appointments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead_id: leadId, scheduled_for: slotTime }),
+      });
+      const data = await res.json();
+      setBooked(data);
     } finally {
       setLoading(false);
     }
@@ -165,6 +183,32 @@ export default function EstimatePage() {
             >
               Download PDF estimate →
             </a>
+          )}
+
+          {!booked ? (
+            <div className="mt-6 pt-6 border-t border-stone/20">
+              <h3 className="font-medium text-sm mb-2">Book your free on-site measurement</h3>
+              <div className="flex gap-2">
+                <input
+                  type="datetime-local"
+                  value={slotTime}
+                  onChange={(e) => setSlotTime(e.target.value)}
+                  className="border border-stone/30 rounded-full px-4 py-2 text-sm flex-1"
+                />
+                <button
+                  onClick={bookMeasurement}
+                  disabled={!slotTime}
+                  className="px-4 py-2 rounded-full bg-grout text-porcelain text-sm disabled:opacity-40"
+                >
+                  Book
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-6 pt-6 border-t border-stone/20 text-sm text-glaze">
+              Measurement booked for {new Date(booked.scheduled_for).toLocaleString("en-CA")}.
+              {booked.calendar_connected ? " It's on our calendar." : ""}
+            </p>
           )}
         </div>
       )}

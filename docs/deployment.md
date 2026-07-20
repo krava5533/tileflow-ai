@@ -41,6 +41,28 @@ but it's mostly clicking "Deploy" and pasting keys — not writing code.
   both have the exact Anthropic API call written out in a comment — uncomment
   it and remove the placeholder return once `ANTHROPIC_API_KEY` is set.
 
+## 4b. Connect Google Calendar (so bookings show up on a real calendar)
+
+1. In [Google Cloud Console](https://console.cloud.google.com), create a
+   project and enable the **Google Calendar API**.
+2. Create a **Service Account** (IAM & Admin → Service Accounts), then create
+   a JSON key for it and download it.
+3. Open Google Calendar as the business owner → the calendar to book into →
+   **Settings and sharing** → **Share with specific people** → add the service
+   account's email (looks like `xxx@xxx.iam.gserviceaccount.com`) with
+   **"Make changes to events"** permission.
+4. Set two environment variables on the backend:
+   - `GOOGLE_CALENDAR_ID` — the calendar's ID (usually the owner's Gmail
+     address, or a dedicated calendar's ID from its settings page)
+   - `GOOGLE_SERVICE_ACCOUNT_JSON` — paste the entire downloaded JSON key as
+     one string
+5. That's it — no OAuth consent screen needed, since this books into one
+   fixed business calendar rather than each customer's own calendar.
+
+Until these are set, appointment booking still works (stored in the
+database), it just won't create a real calendar event — useful for testing
+before Google Cloud setup is done.
+
 ## 5. Canadian business basics (not code, but worth flagging)
 
 - If you plan to invoice customers, you'll want a **GST/HST number** from the

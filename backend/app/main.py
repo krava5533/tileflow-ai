@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import leads, chat, uploads, estimates, appointments
+from app.routers import leads, chat, uploads, estimates, appointments, admin, content
 from app.database import engine, Base
 from app.models import models  # noqa: F401 -- registers models on Base.metadata
 
@@ -20,6 +20,8 @@ app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(uploads.router, prefix="/api/uploads", tags=["uploads"])
 app.include_router(estimates.router, prefix="/api/estimates", tags=["estimates"])
 app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+app.include_router(content.router, prefix="/api/content", tags=["content"])
 
 
 @app.on_event("startup")

@@ -111,6 +111,14 @@ class Estimate(Base):
     lead = relationship("Lead", back_populates="estimates")
 
 
+class Setting(Base):
+    __tablename__ = "settings"
+
+    key = Column(String, primary_key=True)
+    value = Column(JSON, nullable=False)
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class Appointment(Base):
     __tablename__ = "appointments"
 

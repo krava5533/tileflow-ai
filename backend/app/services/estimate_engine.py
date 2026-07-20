@@ -48,16 +48,21 @@ def calculate_estimate(
     needs_demolition: bool = True,
     needs_waterproofing: bool = False,
     province: str = DEFAULT_PROVINCE,
+    price_book: dict = None,
 ) -> Dict[str, float]:
-    material_rate = MATERIAL_COST_PER_SQFT.get(
-        (tile_type or "").lower(), DEFAULT_MATERIAL_COST
-    )
-    labor_rate = LABOR_COST_PER_SQFT.get(complexity, LABOR_COST_PER_SQFT["medium"])
+    price_book = price_book or {}
+    material_rates = price_book.get("material_cost_per_sqft", MATERIAL_COST_PER_SQFT)
+    labor_rates = price_book.get("labor_cost_per_sqft", LABOR_COST_PER_SQFT)
+    demolition_rate = price_book.get("demolition_cost_per_sqft", DEMOLITION_COST_PER_SQFT)
+    waterproofing_rate = price_book.get("waterproofing_cost_per_sqft", WATERPROOFING_COST_PER_SQFT)
+
+    material_rate = material_rates.get((tile_type or "").lower(), DEFAULT_MATERIAL_COST)
+    labor_rate = labor_rates.get(complexity, labor_rates.get("medium", LABOR_COST_PER_SQFT["medium"]))
 
     materials_cost = round(sqft * material_rate, 2)
     labor_cost = round(sqft * labor_rate, 2)
-    demolition_cost = round(sqft * DEMOLITION_COST_PER_SQFT, 2) if needs_demolition else 0.0
-    waterproofing_cost = round(sqft * WATERPROOFING_COST_PER_SQFT, 2) if needs_waterproofing else 0.0
+    demolition_cost = round(sqft * demolition_rate, 2) if needs_demolition else 0.0
+    waterproofing_cost = round(sqft * waterproofing_rate, 2) if needs_waterproofing else 0.0
 
     subtotal = materials_cost + labor_cost + demolition_cost + waterproofing_cost
     tax_rate = TAX_RATE_BY_PROVINCE.get((province or "").upper(), TAX_RATE_BY_PROVINCE[DEFAULT_PROVINCE])

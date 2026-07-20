@@ -10,6 +10,7 @@ from app.models.models import Lead, PhotoAnalysis, Estimate
 from app.services.estimate_engine import calculate_estimate
 from app.services.pdf_generator import generate_estimate_pdf
 from app.services.storage import upload_to_s3
+from app.services import settings_service
 
 router = APIRouter()
 
@@ -33,12 +34,14 @@ def generate_estimate(lead_id: uuid.UUID, db: Session = Depends(get_db)):
     complexity = analysis.complexity if analysis else "medium"
     needs_waterproofing = analysis.waterproofing_needed if analysis else False
 
+    price_book = settings_service.get_price_book(db)
     costs = calculate_estimate(
         sqft=sqft,
         tile_type=lead.tile_type or "porcelain",
         complexity=complexity,
         needs_demolition=True,
         needs_waterproofing=bool(needs_waterproofing),
+        price_book=price_book,
     )
 
     # DB row only stores the columns that exist on the model
