@@ -50,6 +50,9 @@ async def upload_image(
     contents = await file.read()
     url = upload_to_s3(contents, filename=file.filename, lead_id="site-content")
     return {"url": url}
+
+
+@router.get("/portfolio")
 def get_portfolio(db: Session = Depends(get_db), x_admin_password: str = Header(default="")):
     require_admin(x_admin_password)
     return settings_service.get_portfolio(db)
