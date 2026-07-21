@@ -25,6 +25,7 @@ def upload_to_s3(file_bytes: bytes, filename: str, lead_id: str) -> str:
 
     if USE_R2:
         import boto3
+        from botocore.config import Config
 
         client = boto3.client(
             "s3",
@@ -32,6 +33,7 @@ def upload_to_s3(file_bytes: bytes, filename: str, lead_id: str) -> str:
             aws_access_key_id=R2_ACCESS_KEY_ID,
             aws_secret_access_key=R2_SECRET_ACCESS_KEY,
             region_name="auto",
+            config=Config(signature_version="s3v4", s3={"addressing_style": "path"}),
         )
         client.put_object(Bucket=R2_BUCKET_NAME, Key=key, Body=file_bytes)
         base = R2_PUBLIC_URL.rstrip("/") if R2_PUBLIC_URL else f"https://{R2_BUCKET_NAME}.r2.dev"

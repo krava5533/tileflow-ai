@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from fastapi import APIRouter, Depends, Header, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
@@ -60,7 +61,7 @@ def get_portfolio(db: Session = Depends(get_db), x_admin_password: str = Header(
 
 @router.put("/portfolio")
 def update_portfolio(
-    items: list,
+    items: List[dict],
     db: Session = Depends(get_db),
     x_admin_password: str = Header(default=""),
 ):
@@ -76,7 +77,7 @@ def get_reviews(db: Session = Depends(get_db), x_admin_password: str = Header(de
 
 @router.put("/reviews")
 def update_reviews(
-    items: list,
+    items: List[dict],
     db: Session = Depends(get_db),
     x_admin_password: str = Header(default=""),
 ):
