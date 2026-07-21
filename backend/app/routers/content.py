@@ -15,3 +15,8 @@ def public_portfolio(db: Session = Depends(get_db)):
 @router.get("/reviews")
 def public_reviews(db: Session = Depends(get_db)):
     return settings_service.get_reviews(db)
+
+
+@router.get("/site")
+def public_site_content(db: Session = Depends(get_db)):
+    return settings_service.get_site_content(db)

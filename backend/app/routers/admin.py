@@ -70,3 +70,19 @@ def update_reviews(
 ):
     require_admin(x_admin_password)
     return settings_service.save_reviews(db, items)
+
+
+@router.get("/site-content")
+def get_site_content(db: Session = Depends(get_db), x_admin_password: str = Header(default="")):
+    require_admin(x_admin_password)
+    return settings_service.get_site_content(db)
+
+
+@router.put("/site-content")
+def update_site_content(
+    content: dict,
+    db: Session = Depends(get_db),
+    x_admin_password: str = Header(default=""),
+):
+    require_admin(x_admin_password)
+    return settings_service.save_site_content(db, content)

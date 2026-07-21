@@ -14,6 +14,14 @@ type PriceBook = {
 
 type PortfolioItem = { title: string; tag: string; image_url: string };
 type ReviewItem = { text: string; author: string };
+type SiteContent = {
+  hero_title_line1: string;
+  hero_title_line2: string;
+  hero_subtitle: string;
+  contact_phone: string;
+  contact_email: string;
+  accent_color: string;
+};
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
@@ -22,6 +30,7 @@ export default function AdminPage() {
   const [priceBook, setPriceBook] = useState<PriceBook | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -66,6 +75,11 @@ export default function AdminPage() {
       headers: { "X-Admin-Password": pw },
     });
     setReviews(await reviewsRes.json());
+
+    const siteRes = await fetch(`${API_URL}/api/admin/site-content`, {
+      headers: { "X-Admin-Password": pw },
+    });
+    setSiteContent(await siteRes.json());
   }
 
   async function save() {
@@ -87,6 +101,11 @@ export default function AdminPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json", "X-Admin-Password": password },
         body: JSON.stringify(reviews),
+      });
+      await fetch(`${API_URL}/api/admin/site-content`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-Admin-Password": password },
+        body: JSON.stringify(siteContent),
       });
       setSaved(true);
     } finally {
@@ -159,13 +178,74 @@ export default function AdminPage() {
     );
   }
 
-  if (!priceBook) {
+  if (!priceBook || !siteContent) {
     return <main className="min-h-screen bg-porcelain px-6 py-12">Loading…</main>;
   }
 
   return (
     <main className="min-h-screen bg-porcelain px-6 md:px-12 py-10 max-w-2xl mx-auto">
-      <h1 className="font-display text-3xl mb-8">Pricing settings</h1>
+      <h1 className="font-display text-3xl mb-8">Site settings</h1>
+
+      <section className="mb-8">
+        <h2 className="font-medium mb-3">Homepage & branding</h2>
+        <div className="space-y-3">
+          <label className="text-sm block">
+            <span className="block text-stone mb-1">Hero title, line 1</span>
+            <input
+              value={siteContent?.hero_title_line1 || ""}
+              onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), hero_title_line1: e.target.value })}
+              className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="text-sm block">
+            <span className="block text-stone mb-1">Hero title, line 2</span>
+            <input
+              value={siteContent?.hero_title_line2 || ""}
+              onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), hero_title_line2: e.target.value })}
+              className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="text-sm block">
+            <span className="block text-stone mb-1">Hero subtitle</span>
+            <textarea
+              value={siteContent?.hero_subtitle || ""}
+              onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), hero_subtitle: e.target.value })}
+              rows={3}
+              className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="text-sm block">
+              <span className="block text-stone mb-1">Contact phone</span>
+              <input
+                value={siteContent?.contact_phone || ""}
+                onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), contact_phone: e.target.value })}
+                className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-sm block">
+              <span className="block text-stone mb-1">Contact email</span>
+              <input
+                value={siteContent?.contact_email || ""}
+                onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), contact_email: e.target.value })}
+                className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
+          <label className="text-sm block">
+            <span className="block text-stone mb-1">Accent color (buttons, highlights)</span>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={siteContent?.accent_color || "#3F6E64"}
+                onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), accent_color: e.target.value })}
+                className="h-10 w-16 border border-stone/30 rounded-lg"
+              />
+              <span className="text-stone">{siteContent?.accent_color}</span>
+            </div>
+          </label>
+        </div>
+      </section>
 
       <section className="mb-8">
         <h2 className="font-medium mb-3">Material cost per sq ft (CAD)</h2>

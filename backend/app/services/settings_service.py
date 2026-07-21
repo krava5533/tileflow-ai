@@ -11,6 +11,20 @@ from app.services import estimate_engine as defaults
 PRICE_BOOK_KEY = "price_book"
 PORTFOLIO_KEY = "portfolio"
 REVIEWS_KEY = "reviews"
+SITE_CONTENT_KEY = "site_content"
+
+DEFAULT_SITE_CONTENT = {
+    "hero_title_line1": "Tile estimates,",
+    "hero_title_line2": "without the wait.",
+    "hero_subtitle": (
+        "Describe your project to our AI, upload a few photos, and get a real "
+        "estimate before you've finished your coffee. Then book your on-site "
+        "measurement -- no phone tag required."
+    ),
+    "contact_phone": "",
+    "contact_email": "",
+    "accent_color": "#3F6E64",
+}
 
 DEFAULT_PORTFOLIO = [
     {"title": "Master Bath Remodel", "tag": "Bathroom · Porcelain", "image_url": ""},
@@ -71,3 +85,12 @@ def get_reviews(db: Session) -> list:
 
 def save_reviews(db: Session, data: list) -> list:
     return save_setting(db, REVIEWS_KEY, data)
+
+
+def get_site_content(db: Session) -> dict:
+    stored = get_setting(db, SITE_CONTENT_KEY, {})
+    return {**DEFAULT_SITE_CONTENT, **stored}
+
+
+def save_site_content(db: Session, data: dict) -> dict:
+    return save_setting(db, SITE_CONTENT_KEY, data)

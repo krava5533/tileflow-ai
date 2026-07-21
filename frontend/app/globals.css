@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --accent: #3f6e64;
+}
+
 ::selection {
   background-color: #3f6e64;
   color: #f2eee7;

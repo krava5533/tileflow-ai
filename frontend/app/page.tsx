@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const STEPS = [
   { n: "01", title: "Chat with Tila", copy: "Tell our AI assistant about your space — no forms, just a conversation." },
@@ -14,11 +19,34 @@ const SERVICES = [
   { title: "Outdoor & Patio", copy: "Weather-rated tile for spaces you actually use." },
 ];
 
+type SiteContent = {
+  hero_title_line1: string;
+  hero_title_line2: string;
+  hero_subtitle: string;
+};
+
 export default function HomePage() {
+  const [content, setContent] = useState<SiteContent | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/site`)
+      .then((r) => r.json())
+      .then(setContent)
+      .catch(() => {});
+  }, []);
+
+  const heroLine1 = content?.hero_title_line1 || "Tile estimates,";
+  const heroLine2 = content?.hero_title_line2 || "without the wait.";
+  const heroSubtitle =
+    content?.hero_subtitle ||
+    "Describe your project to our AI, upload a few photos, and get a real estimate before you've finished your coffee. Then book your on-site measurement — no phone tag required.";
+
   return (
     <main>
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
-        <span className="font-display text-xl tracking-tight">TileFlow<span className="text-glaze">.</span></span>
+        <span className="font-display text-xl tracking-tight">
+          TileFlow<span style={{ color: "var(--accent)" }}>.</span>
+        </span>
         <div className="hidden md:flex gap-8 text-sm text-stone">
           <Link href="/portfolio">Portfolio</Link>
           <Link href="/reviews">Reviews</Link>
@@ -26,7 +54,10 @@ export default function HomePage() {
         </div>
         <Link
           href="/estimate"
-          className="text-sm px-4 py-2 rounded-full bg-grout text-porcelain hover:bg-glaze transition-colors"
+          className="text-sm px-4 py-2 rounded-full bg-grout text-porcelain transition-colors"
+          style={{ ["--hover-bg" as any]: "var(--accent)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--accent)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "")}
         >
           Get Free AI Estimate
         </Link>
@@ -36,18 +67,15 @@ export default function HomePage() {
       <section className="px-6 md:px-12 pt-12 pb-20 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h1 className="font-display text-5xl md:text-6xl leading-[1.05] font-medium">
-            Tile estimates,
+            {heroLine1}
             <br />
-            without the wait.
+            {heroLine2}
           </h1>
-          <p className="mt-6 text-stone text-lg max-w-md">
-            Describe your project to our AI, upload a few photos, and get a real
-            estimate before you've finished your coffee. Then book your on-site
-            measurement — no phone tag required.
-          </p>
+          <p className="mt-6 text-stone text-lg max-w-md">{heroSubtitle}</p>
           <Link
             href="/estimate"
-            className="inline-block mt-8 px-6 py-3 rounded-full bg-glaze text-porcelain font-medium hover:bg-grout transition-colors"
+            className="inline-block mt-8 px-6 py-3 rounded-full text-porcelain font-medium transition-colors"
+            style={{ backgroundColor: "var(--accent)" }}
           >
             Get Free AI Estimate →
           </Link>
@@ -59,7 +87,10 @@ export default function HomePage() {
           <div className="bg-porcelain/10 rounded-xl rounded-tl-sm px-4 py-3 text-sm w-fit">
             Hi! I'm Tila — what kind of project are we tackling today?
           </div>
-          <div className="bg-glaze rounded-xl rounded-tr-sm px-4 py-3 text-sm w-fit ml-auto">
+          <div
+            className="rounded-xl rounded-tr-sm px-4 py-3 text-sm w-fit ml-auto"
+            style={{ backgroundColor: "var(--accent)" }}
+          >
             Redoing our bathroom floor, about 60 sq ft
           </div>
           <div className="bg-porcelain/10 rounded-xl rounded-tl-sm px-4 py-3 text-sm w-fit">
@@ -74,7 +105,9 @@ export default function HomePage() {
         <div className="grid md:grid-cols-4 gap-8">
           {STEPS.map((s) => (
             <div key={s.n} className="border-t border-porcelain/20 pt-4">
-              <span className="text-glaze font-display text-2xl">{s.n}</span>
+              <span className="font-display text-2xl" style={{ color: "var(--accent)" }}>
+                {s.n}
+              </span>
               <h3 className="mt-2 font-medium">{s.title}</h3>
               <p className="mt-2 text-sm text-porcelain/70">{s.copy}</p>
             </div>
@@ -101,7 +134,7 @@ export default function HomePage() {
         </h2>
         <Link
           href="/estimate"
-          className="inline-block mt-8 px-6 py-3 rounded-full bg-grout text-porcelain font-medium hover:bg-glaze transition-colors"
+          className="inline-block mt-8 px-6 py-3 rounded-full bg-grout text-porcelain font-medium transition-colors"
         >
           Get Free AI Estimate →
         </Link>

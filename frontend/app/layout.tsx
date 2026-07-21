@@ -1,4 +1,5 @@
 import "./globals.css";
+import AccentColorLoader from "./components/AccentColorLoader";
 
 export const metadata = {
   title: "TileFlow AI — AI-Powered Tile & Remodeling Estimates",
@@ -15,7 +16,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="bg-porcelain text-grout font-body antialiased">{children}</body>
+      <body className="bg-porcelain text-grout font-body antialiased">
+        <AccentColorLoader />
+        {children}
+      </body>
     </html>
   );
 }
