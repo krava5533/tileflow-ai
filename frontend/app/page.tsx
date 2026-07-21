@@ -20,6 +20,7 @@ const SERVICES = [
 ];
 
 type SiteContent = {
+  site_name: string;
   hero_title_line1: string;
   hero_title_line2: string;
   hero_subtitle: string;
@@ -35,6 +36,7 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
+  const siteName = content?.site_name || "TileFlow AI";
   const heroLine1 = content?.hero_title_line1 || "Tile estimates,";
   const heroLine2 = content?.hero_title_line2 || "without the wait.";
   const heroSubtitle =
@@ -45,7 +47,7 @@ export default function HomePage() {
     <main>
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
         <span className="font-display text-xl tracking-tight">
-          TileFlow<span style={{ color: "var(--accent)" }}>.</span>
+          {siteName}<span style={{ color: "var(--accent)" }}>.</span>
         </span>
         <div className="hidden md:flex gap-8 text-sm text-stone">
           <Link href="/portfolio">Portfolio</Link>
@@ -141,7 +143,7 @@ export default function HomePage() {
       </section>
 
       <footer className="px-6 md:px-12 py-10 border-t border-stone/20 text-sm text-stone flex justify-between">
-        <span>© {new Date().getFullYear()} TileFlow AI</span>
+        <span>© {new Date().getFullYear()} {siteName}</span>
         <Link href="/contact">Contact</Link>
       </footer>
     </main>

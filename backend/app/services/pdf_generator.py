@@ -22,13 +22,15 @@ def generate_estimate_pdf(
     customer_address: str,
     project_type: str,
     costs: Dict,
+    company_name: str = None,
 ) -> str:
+    company_name = company_name or COMPANY_NAME
     c = canvas.Canvas(output_path, pagesize=letter)
     width, height = letter
 
     # Header
     c.setFont("Helvetica-Bold", 20)
-    c.drawString(0.75 * inch, height - 1 * inch, COMPANY_NAME)
+    c.drawString(0.75 * inch, height - 1 * inch, company_name)
     c.setFont("Helvetica", 10)
     c.setFillColor(colors.grey)
     c.drawString(0.75 * inch, height - 1.2 * inch, COMPANY_TAGLINE)

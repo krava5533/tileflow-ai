@@ -12,6 +12,9 @@ export default function AccentColorLoader() {
         if (data.accent_color) {
           document.documentElement.style.setProperty("--accent", data.accent_color);
         }
+        if (data.site_name) {
+          document.title = `${data.site_name} — AI-Powered Tile & Remodeling Estimates`;
+        }
       })
       .catch(() => {});
   }, []);

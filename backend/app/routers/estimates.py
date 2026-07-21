@@ -57,12 +57,14 @@ def generate_estimate(lead_id: uuid.UUID, db: Session = Depends(get_db)):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         pdf_path = os.path.join(tmp_dir, f"estimate_{estimate.id}.pdf")
+        site_content = settings_service.get_site_content(db)
         generate_estimate_pdf(
             output_path=pdf_path,
             customer_name=lead.customer.name if lead.customer else "",
             customer_address=lead.customer.address if lead.customer else "",
             project_type=lead.project_type,
             costs=costs,
+            company_name=site_content.get("site_name"),
         )
         with open(pdf_path, "rb") as f:
             pdf_url = upload_to_s3(

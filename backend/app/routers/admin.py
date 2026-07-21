@@ -1,10 +1,11 @@
 import os
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.services import settings_service
+from app.services.storage import upload_to_s3
 
 router = APIRouter()
 
@@ -40,7 +41,15 @@ def update_price_book(
     return settings_service.save_price_book(db, price_book)
 
 
-@router.get("/portfolio")
+@router.post("/upload-image")
+async def upload_image(
+    file: UploadFile = File(...),
+    x_admin_password: str = Header(default=""),
+):
+    require_admin(x_admin_password)
+    contents = await file.read()
+    url = upload_to_s3(contents, filename=file.filename, lead_id="site-content")
+    return {"url": url}
 def get_portfolio(db: Session = Depends(get_db), x_admin_password: str = Header(default="")):
     require_admin(x_admin_password)
     return settings_service.get_portfolio(db)

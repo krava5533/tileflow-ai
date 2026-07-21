@@ -14,6 +14,7 @@ REVIEWS_KEY = "reviews"
 SITE_CONTENT_KEY = "site_content"
 
 DEFAULT_SITE_CONTENT = {
+    "site_name": "TileFlow AI",
     "hero_title_line1": "Tile estimates,",
     "hero_title_line2": "without the wait.",
     "hero_subtitle": (

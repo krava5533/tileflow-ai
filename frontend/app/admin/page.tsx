@@ -15,6 +15,7 @@ type PriceBook = {
 type PortfolioItem = { title: string; tag: string; image_url: string };
 type ReviewItem = { text: string; author: string };
 type SiteContent = {
+  site_name: string;
   hero_title_line1: string;
   hero_title_line2: string;
   hero_subtitle: string;
@@ -113,6 +114,18 @@ export default function AdminPage() {
     }
   }
 
+  async function uploadPortfolioPhoto(index: number, file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${API_URL}/api/admin/upload-image`, {
+      method: "POST",
+      headers: { "X-Admin-Password": password },
+      body: form,
+    });
+    const data = await res.json();
+    if (data.url) updatePortfolioItem(index, "image_url", data.url);
+  }
+
   function updatePortfolioItem(index: number, field: keyof PortfolioItem, value: string) {
     setPortfolio(portfolio.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
   }
@@ -189,6 +202,14 @@ export default function AdminPage() {
       <section className="mb-8">
         <h2 className="font-medium mb-3">Homepage & branding</h2>
         <div className="space-y-3">
+          <label className="text-sm block">
+            <span className="block text-stone mb-1">Company name</span>
+            <input
+              value={siteContent?.site_name || ""}
+              onChange={(e) => setSiteContent({ ...(siteContent as SiteContent), site_name: e.target.value })}
+              className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </label>
           <label className="text-sm block">
             <span className="block text-stone mb-1">Hero title, line 1</span>
             <input
@@ -328,11 +349,21 @@ export default function AdminPage() {
                 className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
               />
               <input
-                placeholder="Photo URL (paste a link to an image hosted online)"
+                placeholder="Photo URL (or upload a file below)"
                 value={item.image_url}
                 onChange={(e) => updatePortfolioItem(i, "image_url", e.target.value)}
                 className="w-full border border-stone/30 rounded-lg px-3 py-2 text-sm"
               />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => e.target.files?.[0] && uploadPortfolioPhoto(i, e.target.files[0])}
+                className="text-xs"
+              />
+              {item.image_url && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={item.image_url} alt="" className="h-20 rounded-lg object-cover" />
+              )}
               <button onClick={() => removePortfolioItem(i)} className="text-xs text-red-600">
                 Remove
               </button>
@@ -345,10 +376,7 @@ export default function AdminPage() {
         >
           + Add project
         </button>
-        <p className="text-xs text-stone mt-2">
-          No file upload yet -- paste a link to a photo hosted online (e.g. upload it to Imgur, Google Photos
-          "share" link, or your own site, then paste the direct image URL here).
-        </p>
+        <p className="text-xs text-stone mt-2">Upload a photo directly, or paste a link to an image hosted elsewhere.</p>
       </section>
 
       <section className="mb-8">
