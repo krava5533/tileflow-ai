@@ -117,13 +117,25 @@ export default function AdminPage() {
   async function uploadPortfolioPhoto(index: number, file: File) {
     const form = new FormData();
     form.append("file", file);
-    const res = await fetch(`${API_URL}/api/admin/upload-image`, {
-      method: "POST",
-      headers: { "X-Admin-Password": password },
-      body: form,
-    });
-    const data = await res.json();
-    if (data.url) updatePortfolioItem(index, "image_url", data.url);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/upload-image`, {
+        method: "POST",
+        headers: { "X-Admin-Password": password },
+        body: form,
+      });
+      const data = await res.json();
+      if (data.url) {
+        updatePortfolioItem(index, "image_url", data.url);
+      } else {
+        alert(
+          "Upload failed: cloud storage isn't connected yet. For now, add the photo to " +
+          "frontend/public/portfolio/ in your project and type the path (e.g. /portfolio/photo1.jpg) " +
+          "into the Photo URL field instead."
+        );
+      }
+    } catch {
+      alert("Upload failed -- cloud storage isn't connected yet. Use the Photo URL field with a local path instead.");
+    }
   }
 
   function updatePortfolioItem(index: number, field: keyof PortfolioItem, value: string) {
@@ -376,7 +388,11 @@ export default function AdminPage() {
         >
           + Add project
         </button>
-        <p className="text-xs text-stone mt-2">Upload a photo directly, or paste a link to an image hosted elsewhere.</p>
+        <p className="text-xs text-stone mt-2">
+          Upload a photo directly (needs cloud storage connected), or paste a path/link:
+          drop image files into <code>frontend/public/portfolio/</code> in your project and
+          use a path like <code>/portfolio/photo1.jpg</code> here — no cloud account needed.
+        </p>
       </section>
 
       <section className="mb-8">

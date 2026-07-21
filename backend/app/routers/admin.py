@@ -49,7 +49,10 @@ async def upload_image(
 ):
     require_admin(x_admin_password)
     contents = await file.read()
-    url = upload_to_s3(contents, filename=file.filename, lead_id="site-content")
+    try:
+        url = upload_to_s3(contents, filename=file.filename, lead_id="site-content")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Storage upload failed: {e}")
     return {"url": url}
 
 
